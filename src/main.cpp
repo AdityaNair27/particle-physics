@@ -6,11 +6,13 @@
 class Particle{
 public:
     float size = 5;
-    sf::Vector2f position, velocity = {200, 200};
+    sf::Vector2f position, velocity;
 
     Particle(){
         position.x = size + static_cast<float>(rand() % static_cast<int>(799 - size*2));
         position.y = size + static_cast<float>(rand() % static_cast<int>(599 - size*2));
+        velocity.x = -200 + static_cast<float>(rand() % static_cast<int>(400));
+        velocity.y = -200 + static_cast<float>(rand() % static_cast<int>(400));
     }
 };
 
@@ -22,6 +24,7 @@ void collision(Particle& p1, Particle& p2){
     if(actualLength < minLength && actualLength > 0){
         float overlap = (minLength - actualLength) * 0.5f;
         float nx = x / actualLength, ny = y / actualLength;
+        float bounce = 0.8f;
 
         p1.position.x += nx * overlap;
         p1.position.y += ny * overlap;
@@ -34,10 +37,10 @@ void collision(Particle& p1, Particle& p2){
         float dotProduct = (vx * nx) + (vy * ny);
 
         if (dotProduct < 0) {
-            p1.velocity.x -= dotProduct * nx;
-            p1.velocity.y -= dotProduct * ny;
-            p2.velocity.x += dotProduct * nx;
-            p2.velocity.y += dotProduct * ny;
+            p1.velocity.x -= dotProduct * nx * bounce;
+            p1.velocity.y -= dotProduct * ny * bounce;
+            p2.velocity.x += dotProduct * nx * bounce;
+            p2.velocity.y += dotProduct * ny * bounce;
         }
     }
 }
@@ -46,12 +49,14 @@ int main(){
     const int WIDTH = 600;
     const int LENGTH = 800;
     const int CELL_SIZE = 50;
+    const float BOUNCE = 0.8f;
+    const float FRICTION = 0.999f;
 
     std::vector<int> grid[LENGTH/CELL_SIZE][WIDTH/CELL_SIZE];
 
     srand(static_cast<unsigned> (time(NULL)));
 
-    sf::RenderWindow window(sf::VideoMode({ 800, 600 }), "Window");
+    sf::RenderWindow window(sf::VideoMode({ LENGTH, WIDTH }), "Window");
 
     std::vector<Particle> particles;
 
@@ -84,24 +89,31 @@ int main(){
 
             if(p.position.x < p.size){
                 p.position.x = p.size;
-                p.velocity.x *= -1;
+                p.velocity.x *= -BOUNCE;
 
-            } else if (p.position.x > (800 - p.size)) {
-                p.position.x = (800 - p.size);
-                p.velocity.x *= -1;
+            } else if (p.position.x > (LENGTH - p.size)) {
+                p.position.x = (LENGTH - p.size);
+                p.velocity.x *= -BOUNCE;
 
             }
 
             if(p.position.y < p.size){
                 p.position.y = p.size;
-                p.velocity.y *= -1;
+                p.velocity.y *= -BOUNCE;
 
-            } else if (p.position.y > (600 - p.size)) {
-                p.position.y = (600 - p.size);
-                p.velocity.y *= -1;
+            } else if (p.position.y > (WIDTH - p.size)) {
+                p.position.y = (WIDTH - p.size);
+                p.velocity.y *= -BOUNCE;
 
             }
 
+            if(abs(p.velocity.x) < 0.1){
+                p.velocity.x = 0;
+            } else if(abs(p.velocity.y) < 0.1){
+                p.velocity.y = 0;
+            }
+
+            p.velocity *= FRICTION;
             p.position += p.velocity * dt;
 
             dot.setRadius(p.size);
