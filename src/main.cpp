@@ -16,7 +16,7 @@ public:
     }
 };
 
-void collision(Particle& p1, Particle& p2){
+void collision(Particle& p1, Particle& p2, float BOUNCE){
     float x = p1.position.x - p2.position.x, y = p1.position.y - p2.position.y;
     float minLength = p1.size + p2.size;
     float actualLength = sqrt((x * x) + (y * y));
@@ -24,7 +24,6 @@ void collision(Particle& p1, Particle& p2){
     if(actualLength < minLength && actualLength > 0){
         float overlap = (minLength - actualLength) * 0.5f;
         float nx = x / actualLength, ny = y / actualLength;
-        float bounce = 0.8f;
 
         p1.position.x += nx * overlap;
         p1.position.y += ny * overlap;
@@ -37,10 +36,10 @@ void collision(Particle& p1, Particle& p2){
         float dotProduct = (vx * nx) + (vy * ny);
 
         if (dotProduct < 0) {
-            p1.velocity.x -= dotProduct * nx * bounce;
-            p1.velocity.y -= dotProduct * ny * bounce;
-            p2.velocity.x += dotProduct * nx * bounce;
-            p2.velocity.y += dotProduct * ny * bounce;
+            p1.velocity.x -= dotProduct * nx * BOUNCE;
+            p1.velocity.y -= dotProduct * ny * BOUNCE;
+            p2.velocity.x += dotProduct * nx * BOUNCE;
+            p2.velocity.y += dotProduct * ny * BOUNCE;
         }
     }
 }
@@ -48,7 +47,7 @@ void collision(Particle& p1, Particle& p2){
 int main(){
     const int WIDTH = 600;
     const int LENGTH = 800;
-    const int CELL_SIZE = 50;
+    const int CELL_SIZE = 25;
     const float BOUNCE = 0.8f;
     const float FRICTION = 0.999f;
 
@@ -60,7 +59,7 @@ int main(){
 
     std::vector<Particle> particles;
 
-    for(int i = 0; i < 250; i++){
+    for(int i = 0; i < 500; i++){
         particles.emplace_back();
     }
 
@@ -140,7 +139,7 @@ int main(){
                             if (nx >= 0 && nx < LENGTH / CELL_SIZE && ny >= 0 && ny < WIDTH / CELL_SIZE) {
                                 for(int p2 : grid[nx][ny]){
                                     if(p1 > p2){
-                                        collision(particles[p1], particles[p2]);
+                                        collision(particles[p1], particles[p2], BOUNCE);
                                     }
                                 }
                             }
