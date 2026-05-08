@@ -51,11 +51,16 @@ int main(){
     const float BOUNCE = 0.8f;
     const float FRICTION = 0.999f;
 
-    std::vector<int> grid[LENGTH/CELL_SIZE][WIDTH/CELL_SIZE];
-
     srand(static_cast<unsigned> (time(NULL)));
-
+    
     sf::RenderWindow window(sf::VideoMode({ LENGTH, WIDTH }), "Window");
+
+    Particle cursor;
+    cursor.size = 7.5f;
+
+    sf::Vector2f previousCursorPosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+    std::vector<int> grid[LENGTH/CELL_SIZE][WIDTH/CELL_SIZE];
 
     std::vector<Particle> particles;
 
@@ -74,17 +79,22 @@ int main(){
                 window.close();
         }
 
-        float dt = clock.restart().asSeconds();
-
         window.clear();
+
+        float dt = clock.restart().asSeconds();
 
         for(int x = 0; x < LENGTH/CELL_SIZE; x++){
             for(int y = 0; y < WIDTH/CELL_SIZE; y++){
                 grid[x][y].clear();
             }
         }
-        
+
+        cursor.position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        cursor.velocity = (cursor.position - previousCursorPosition) / dt;
+        previousCursorPosition = cursor.position;
+
         for(Particle& p : particles){
+            collision(p, cursor, BOUNCE);
 
             if(p.position.x < p.size){
                 p.position.x = p.size;
@@ -108,7 +118,8 @@ int main(){
 
             if(abs(p.velocity.x) < 0.1){
                 p.velocity.x = 0;
-            } else if(abs(p.velocity.y) < 0.1){
+            } 
+            if(abs(p.velocity.y) < 0.1){
                 p.velocity.y = 0;
             }
 
