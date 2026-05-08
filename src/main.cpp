@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <cstdlib>
 #include <cmath>
+#include <random>
 
 namespace Config {
     const int WINDOW_WIDTH = 800;
@@ -15,10 +15,16 @@ public:
     sf::Vector2f position, velocity;
 
     Particle(){
-        position.x = size + static_cast<float>(rand() % static_cast<int>(Config::WINDOW_WIDTH - size*2));
-        position.y = size + static_cast<float>(rand() % static_cast<int>(Config::WINDOW_HEIGHT - size*2));
-        velocity.x = -200 + static_cast<float>(rand() % static_cast<int>(400));
-        velocity.y = -200 + static_cast<float>(rand() % static_cast<int>(400));
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> distX(size, Config::WINDOW_WIDTH - size);
+        std::uniform_real_distribution<float> distY(size, Config::WINDOW_HEIGHT - size);
+        std::uniform_real_distribution<float> distV(-200.0, 200.0);
+
+        position.x = distX(gen);
+        position.y = distY(gen);
+        velocity.x = distV(gen);
+        velocity.y = distV(gen);
     }
 };
 
@@ -81,8 +87,6 @@ void windowCollision(Particle &p, float BOUNCE){
 int main(){
     const float BOUNCE = 0.8f;
     const float FRICTION = 0.999f;
-
-    srand(static_cast<unsigned> (time(NULL)));
     
     sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Window");
 
