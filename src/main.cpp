@@ -50,6 +50,34 @@ void collision(Particle& p1, Particle& p2, float BOUNCE){
     }
 }
 
+void windowCollision(Particle &p, float BOUNCE){
+    if(p.position.x < p.size){
+        p.position.x = p.size;
+        p.velocity.x *= -BOUNCE;
+
+    } else if (p.position.x > (Config::WINDOW_WIDTH - p.size)) {
+        p.position.x = (Config::WINDOW_WIDTH - p.size);
+        p.velocity.x *= -BOUNCE;
+    }
+
+    if(p.position.y < p.size){
+        p.position.y = p.size;
+        p.velocity.y *= -BOUNCE;
+
+    } else if (p.position.y > (Config::WINDOW_HEIGHT - p.size)) {
+        p.position.y = (Config::WINDOW_HEIGHT - p.size);
+        p.velocity.y *= -BOUNCE;
+
+    }
+
+    if(abs(p.velocity.x) < 0.1){
+        p.velocity.x = 0;
+    } 
+    if(abs(p.velocity.y) < 0.1){
+        p.velocity.y = 0;
+    }
+}
+
 int main(){
     const float BOUNCE = 0.8f;
     const float FRICTION = 0.999f;
@@ -83,56 +111,16 @@ int main(){
         }
 
         window.clear();
-
         float dt = clock.restart().asSeconds();
-
-        for(int x = 0; x < Config::WINDOW_WIDTH/Config::CELL_SIZE; x++){
-            for(int y = 0; y < Config::WINDOW_HEIGHT/Config::CELL_SIZE; y++){
-                grid[x][y].clear();
-            }
-        }
 
         cursor.position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
         cursor.velocity = (cursor.position - previousCursorPosition) / dt;
         previousCursorPosition = cursor.position;
 
-        for(Particle& p : particles){
-            collision(p, cursor, BOUNCE);
-
-            if(p.position.x < p.size){
-                p.position.x = p.size;
-                p.velocity.x *= -BOUNCE;
-
-            } else if (p.position.x > (Config::WINDOW_WIDTH - p.size)) {
-                p.position.x = (Config::WINDOW_WIDTH - p.size);
-                p.velocity.x *= -BOUNCE;
-
+        for(int x = 0; x < Config::WINDOW_WIDTH/Config::CELL_SIZE; x++){
+            for(int y = 0; y < Config::WINDOW_HEIGHT/Config::CELL_SIZE; y++){
+                grid[x][y].clear();
             }
-
-            if(p.position.y < p.size){
-                p.position.y = p.size;
-                p.velocity.y *= -BOUNCE;
-
-            } else if (p.position.y > (Config::WINDOW_HEIGHT - p.size)) {
-                p.position.y = (Config::WINDOW_HEIGHT - p.size);
-                p.velocity.y *= -BOUNCE;
-
-            }
-
-            if(abs(p.velocity.x) < 0.1){
-                p.velocity.x = 0;
-            } 
-            if(abs(p.velocity.y) < 0.1){
-                p.velocity.y = 0;
-            }
-
-            p.velocity *= FRICTION;
-            p.position += p.velocity * dt;
-
-            dot.setRadius(p.size);
-            dot.setOrigin({p.size, p.size});
-            dot.setPosition(p.position);
-            window.draw(dot);
         }
         
         for(int i = 0; i < particles.size(); i++){
@@ -161,6 +149,22 @@ int main(){
                     }
                 }
             }
+        }
+
+        for(Particle& p : particles){
+            collision(p, cursor, BOUNCE);
+        }
+
+        for(Particle& p : particles){
+            windowCollision(p, BOUNCE);
+
+            p.velocity *= FRICTION;
+            p.position += p.velocity * dt;
+
+            dot.setRadius(p.size);
+            dot.setOrigin({p.size, p.size});
+            dot.setPosition(p.position);
+            window.draw(dot);
         }
 
         window.display();
