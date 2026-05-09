@@ -1,7 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <cstdlib>
 #include <cmath>
+#include <random>
+
+namespace Config {
+    const int WINDOW_WIDTH = 800;
+    const int WINDOW_HEIGHT = 600;
+    const int CELL_SIZE = 25;
+}
 
 class Particle{
 public:
@@ -9,10 +15,16 @@ public:
     sf::Vector2f position, velocity;
 
     Particle(){
-        position.x = size + static_cast<float>(rand() % static_cast<int>(799 - size*2));
-        position.y = size + static_cast<float>(rand() % static_cast<int>(599 - size*2));
-        velocity.x = -200 + static_cast<float>(rand() % static_cast<int>(400));
-        velocity.y = -200 + static_cast<float>(rand() % static_cast<int>(400));
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> distX(size, Config::WINDOW_WIDTH - size);
+        std::uniform_real_distribution<float> distY(size, Config::WINDOW_HEIGHT - size);
+        std::uniform_real_distribution<float> distV(-200.0, 200.0);
+
+        position.x = distX(gen);
+        position.y = distY(gen);
+        velocity.x = distV(gen);
+        velocity.y = distV(gen);
     }
 };
 
@@ -44,23 +56,46 @@ void collision(Particle& p1, Particle& p2, float BOUNCE){
     }
 }
 
+void windowCollision(Particle &p, float BOUNCE){
+    if(p.position.x < p.size){
+        p.position.x = p.size;
+        p.velocity.x *= -BOUNCE;
+
+    } else if (p.position.x > (Config::WINDOW_WIDTH - p.size)) {
+        p.position.x = (Config::WINDOW_WIDTH - p.size);
+        p.velocity.x *= -BOUNCE;
+    }
+
+    if(p.position.y < p.size){
+        p.position.y = p.size;
+        p.velocity.y *= -BOUNCE;
+
+    } else if (p.position.y > (Config::WINDOW_HEIGHT - p.size)) {
+        p.position.y = (Config::WINDOW_HEIGHT - p.size);
+        p.velocity.y *= -BOUNCE;
+
+    }
+
+    if(abs(p.velocity.x) < 0.1){
+        p.velocity.x = 0;
+    } 
+    if(abs(p.velocity.y) < 0.1){
+        p.velocity.y = 0;
+    }
+}
+
 int main(){
-    const int WIDTH = 600;
-    const int LENGTH = 800;
-    const int CELL_SIZE = 25;
     const float BOUNCE = 0.8f;
     const float FRICTION = 0.999f;
-
-    srand(static_cast<unsigned> (time(NULL)));
     
-    sf::RenderWindow window(sf::VideoMode({ LENGTH, WIDTH }), "Window");
+    sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Window");
 
     Particle cursor;
     cursor.size = 7.5f;
 
     sf::Vector2f previousCursorPosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-    std::vector<int> grid[LENGTH/CELL_SIZE][WIDTH/CELL_SIZE];
+    std::vector<int> grid[Config::WINDOW_WIDTH/Config::CELL_SIZE][Config::WINDOW_HEIGHT/Config::CELL_SIZE];
 
     std::vector<Particle> particles;
 
@@ -80,74 +115,34 @@ int main(){
         }
 
         window.clear();
-
         float dt = clock.restart().asSeconds();
-
-        for(int x = 0; x < LENGTH/CELL_SIZE; x++){
-            for(int y = 0; y < WIDTH/CELL_SIZE; y++){
-                grid[x][y].clear();
-            }
-        }
 
         cursor.position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
         cursor.velocity = (cursor.position - previousCursorPosition) / dt;
         previousCursorPosition = cursor.position;
 
-        for(Particle& p : particles){
-            collision(p, cursor, BOUNCE);
-
-            if(p.position.x < p.size){
-                p.position.x = p.size;
-                p.velocity.x *= -BOUNCE;
-
-            } else if (p.position.x > (LENGTH - p.size)) {
-                p.position.x = (LENGTH - p.size);
-                p.velocity.x *= -BOUNCE;
-
+        for(int x = 0; x < Config::WINDOW_WIDTH/Config::CELL_SIZE; x++){
+            for(int y = 0; y < Config::WINDOW_HEIGHT/Config::CELL_SIZE; y++){
+                grid[x][y].clear();
             }
-
-            if(p.position.y < p.size){
-                p.position.y = p.size;
-                p.velocity.y *= -BOUNCE;
-
-            } else if (p.position.y > (WIDTH - p.size)) {
-                p.position.y = (WIDTH - p.size);
-                p.velocity.y *= -BOUNCE;
-
-            }
-
-            if(abs(p.velocity.x) < 0.1){
-                p.velocity.x = 0;
-            } 
-            if(abs(p.velocity.y) < 0.1){
-                p.velocity.y = 0;
-            }
-
-            p.velocity *= FRICTION;
-            p.position += p.velocity * dt;
-
-            dot.setRadius(p.size);
-            dot.setOrigin({p.size, p.size});
-            dot.setPosition(p.position);
-            window.draw(dot);
         }
         
         for(int i = 0; i < particles.size(); i++){
-            int gx = static_cast<int>(particles[i].position.x / CELL_SIZE);
-            int gy = static_cast<int>(particles[i].position.y / CELL_SIZE);
+            int gx = static_cast<int>(particles[i].position.x / Config::CELL_SIZE);
+            int gy = static_cast<int>(particles[i].position.y / Config::CELL_SIZE);
         
-            gx = std::clamp(gx, 0, (LENGTH / CELL_SIZE) - 1);
-            gy = std::clamp(gy, 0, (WIDTH / CELL_SIZE) - 1);
+            gx = std::clamp(gx, 0, (Config::WINDOW_WIDTH / Config::CELL_SIZE) - 1);
+            gy = std::clamp(gy, 0, (Config::WINDOW_HEIGHT / Config::CELL_SIZE) - 1);
 
             grid[gx][gy].push_back(i);
         }
 
-        for (int x = 0; x < LENGTH / CELL_SIZE; x++) {
-            for (int y = 0; y < WIDTH / CELL_SIZE; y++) {
+        for (int x = 0; x < Config::WINDOW_WIDTH / Config::CELL_SIZE; x++) {
+            for (int y = 0; y < Config::WINDOW_HEIGHT / Config::CELL_SIZE; y++) {
                 for(int p1 : grid[x][y]){
                     for(int nx = x - 1; nx <= x + 1; nx++){
                         for(int ny = y - 1; ny <= y + 1; ny++){
-                            if (nx >= 0 && nx < LENGTH / CELL_SIZE && ny >= 0 && ny < WIDTH / CELL_SIZE) {
+                            if (nx >= 0 && nx < Config::WINDOW_WIDTH / Config::CELL_SIZE && ny >= 0 && ny < Config::WINDOW_HEIGHT / Config::CELL_SIZE) {
                                 for(int p2 : grid[nx][ny]){
                                     if(p1 > p2){
                                         collision(particles[p1], particles[p2], BOUNCE);
@@ -158,6 +153,22 @@ int main(){
                     }
                 }
             }
+        }
+
+        for(Particle& p : particles){
+            collision(p, cursor, BOUNCE);
+        }
+
+        for(Particle& p : particles){
+            windowCollision(p, BOUNCE);
+
+            p.velocity *= FRICTION;
+            p.position += p.velocity * dt;
+
+            dot.setRadius(p.size);
+            dot.setOrigin({p.size, p.size});
+            dot.setPosition(p.position);
+            window.draw(dot);
         }
 
         window.display();
