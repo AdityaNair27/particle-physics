@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <random>
+#include "UI.h"
 
 namespace Config {
     const int WINDOW_WIDTH = 800;
