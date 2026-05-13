@@ -5,14 +5,21 @@
 #include "UI.h"
 
 namespace Config {
-    const int WINDOW_WIDTH = 800;
+    const int WINDOW_WIDTH = 900;
     const int WINDOW_HEIGHT = 600;
     const int CELL_SIZE = 25;
 }
 
+namespace SimulationVariable {
+    float friction = 0.999f;
+    float size = 5;
+    int numberOfParticles = 500;
+    bool blackHole = false;
+}
+
 class Particle{
 public:
-    float size = 5;
+    float size = SimulationVariable::size;
     sf::Vector2f position, velocity;
 
     Particle(){
@@ -87,7 +94,6 @@ void windowCollision(Particle &p, float BOUNCE){
 
 int main(){
     const float BOUNCE = 0.8f;
-    const float FRICTION = 0.999f;
     
     sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Window");
 
@@ -100,7 +106,7 @@ int main(){
 
     std::vector<Particle> particles;
 
-    for(int i = 0; i < 500; i++){
+    for(int i = 0; i < SimulationVariable::numberOfParticles; i++){
         particles.emplace_back();
     }
 
@@ -163,7 +169,7 @@ int main(){
         for(Particle& p : particles){
             windowCollision(p, BOUNCE);
 
-            p.velocity *= FRICTION;
+            p.velocity *= SimulationVariable::friction;
             p.position += p.velocity * dt;
 
             dot.setRadius(p.size);
@@ -171,6 +177,8 @@ int main(){
             dot.setPosition(p.position);
             window.draw(dot);
         }
+
+        renderSidebar(window, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
         window.display();
     }
