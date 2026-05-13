@@ -25,7 +25,7 @@ public:
     Particle(){
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> distX(size, Config::WINDOW_WIDTH - size);
+        std::uniform_real_distribution<float> distX(200 + size, Config::WINDOW_WIDTH - size);
         std::uniform_real_distribution<float> distY(size, Config::WINDOW_HEIGHT - size);
         std::uniform_real_distribution<float> distV(-200.0, 200.0);
 
@@ -65,8 +65,8 @@ void collision(Particle& p1, Particle& p2, float BOUNCE){
 }
 
 void windowCollision(Particle &p, float BOUNCE){
-    if(p.position.x < p.size){
-        p.position.x = p.size;
+    if(p.position.x < 200 + p.size){
+        p.position.x = 200 + p.size;
         p.velocity.x *= -BOUNCE;
 
     } else if (p.position.x > (Config::WINDOW_WIDTH - p.size)) {
