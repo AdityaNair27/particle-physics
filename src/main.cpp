@@ -217,6 +217,15 @@ int main(){
 
         renderSidebar(window, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
+        Slider friction({25, 120}, 0.9, 0.999);
+        friction.draw(window);
+
+        Slider size({25, 240}, 1, 10);
+        size.draw(window);
+
+        Slider numberOfParticles({25, 360}, 1, 500);
+        numberOfParticles.draw(window);
+
         window.display();
     }
 
