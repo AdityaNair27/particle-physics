@@ -117,8 +117,43 @@ int main(){
 
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
+            }
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && SimulationVariable::friction > 0.900) {
+            SimulationVariable::friction -= 0.001f;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && SimulationVariable::friction <= 0.999) {
+            SimulationVariable::friction += 0.001f;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P) && SimulationVariable::size < 10) {
+            SimulationVariable::size += 0.05f;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::M)  && SimulationVariable::size > 1) {
+            SimulationVariable::size -= 0.05f;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z) && SimulationVariable::numberOfParticles > 1) {
+            SimulationVariable::numberOfParticles -= 1;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X) && SimulationVariable::numberOfParticles < 500) {
+            SimulationVariable::numberOfParticles += 1;
+        }
+
+        if(SimulationVariable::numberOfParticles < particles.size()){
+            for(int i = 0; i < particles.size() - SimulationVariable::numberOfParticles; i++){
+                particles.pop_back();
+            }
+        } else if (SimulationVariable::numberOfParticles > particles.size()){
+            for(int i = 0; i < SimulationVariable::numberOfParticles - particles.size(); i++){
+                particles.emplace_back();
+            }
         }
 
         window.clear();
@@ -171,6 +206,8 @@ int main(){
 
             p.velocity *= SimulationVariable::friction;
             p.position += p.velocity * dt;
+
+            p.size = SimulationVariable::size;
 
             dot.setRadius(p.size);
             dot.setOrigin({p.size, p.size});

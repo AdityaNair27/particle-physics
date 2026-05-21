@@ -9,6 +9,6 @@ void renderSidebar(sf::RenderWindow& window, const int& WINDOW_WIDTH, const int&
     sidebar.setSize(size);
     sidebar.setPosition(position);
     sidebar.setOutlineThickness(2);
-    sidebar.setOutlineColor(sf::Color(100, 100, 100));
+    sidebar.setOutlineColor(sf::Color(75, 75, 75));
     window.draw(sidebar);
 }
