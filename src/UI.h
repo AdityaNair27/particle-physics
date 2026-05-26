@@ -12,7 +12,8 @@ private:
     bool isDragging;
 public:
     Slider(sf::Vector2f position, float maxValue, float minValue);
-    void update(sf::RenderWindow& window);
+    void update(sf::RenderWindow& window, float& variable);
+    void update(sf::RenderWindow& window, int& variable);
     void draw(sf::RenderWindow& window);
 };
 

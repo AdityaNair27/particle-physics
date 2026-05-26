@@ -115,6 +115,10 @@ int main(){
     
     sf::Clock clock;
 
+    Slider friction({25, 120}, 0.999f, 0.9f);
+    Slider size({25, 240}, 10, 1);
+    Slider numberOfParticles({25, 360}, 500, 1);
+
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
@@ -217,13 +221,13 @@ int main(){
 
         renderSidebar(window, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        Slider friction({25, 120}, 0.9, 0.999);
+        friction.update(window, SimulationVariable::friction);
         friction.draw(window);
 
-        Slider size({25, 240}, 1, 10);
+        size.update(window, SimulationVariable::size);
         size.draw(window);
 
-        Slider numberOfParticles({25, 360}, 1, 500);
+        numberOfParticles.update(window, SimulationVariable::numberOfParticles);
         numberOfParticles.draw(window);
 
         window.display();
