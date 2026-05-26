@@ -97,6 +97,8 @@ int main(){
     
     sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Window");
 
+    sf::Font font("arial.ttf");
+
     Particle cursor;
     cursor.size = 7.5f;
 
@@ -197,14 +199,14 @@ int main(){
 
         renderSidebar(window, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        friction.update(window, SimulationVariable::friction);
-        friction.draw(window);
+        friction.update(window, SimulationVariable::friction, font);
+        friction.draw(window, "Friction", font);
 
-        size.update(window, SimulationVariable::size);
-        size.draw(window);
+        size.update(window, SimulationVariable::size, font);
+        size.draw(window, "Size", font);
 
-        numberOfParticles.update(window, SimulationVariable::numberOfParticles);
-        numberOfParticles.draw(window);
+        numberOfParticles.update(window, SimulationVariable::numberOfParticles, font);
+        numberOfParticles.draw(window, "Particles", font);
 
         window.display();
     }

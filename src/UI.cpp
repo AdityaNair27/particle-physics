@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <algorithm>
+#include <string>
 
 Slider::Slider(sf::Vector2f position, float maxvalue, float minvalue){
     maxValue = maxvalue;
@@ -17,7 +18,7 @@ Slider::Slider(sf::Vector2f position, float maxvalue, float minvalue){
     knob.setPosition({position.x + 75, position.y + 2});
 }
 
-void Slider::update(sf::RenderWindow& window, float& variable){
+void Slider::update(sf::RenderWindow& window, float& variable, sf::Font generalFont){
     sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     sf::Vector2f distance = mousePosition - knob.getPosition();
 
@@ -43,17 +44,27 @@ void Slider::update(sf::RenderWindow& window, float& variable){
     variable = std::clamp(minValue + (maxValue - minValue) * percentage, minValue, maxValue);
 }
 
-void Slider::update(sf::RenderWindow& window, int& variable){
+void Slider::update(sf::RenderWindow& window, int& variable, sf::Font generalFont){
     float tempFloat = static_cast<float>(variable);
     
-    update(window, tempFloat);
+    update(window, tempFloat, generalFont);
     
     variable = static_cast<int>(std::round(tempFloat));
 }
 
-void Slider::draw(sf::RenderWindow& window){
+void Slider::draw(sf::RenderWindow& window, std::string label, sf::Font generalFont){
     window.draw(track);
     window.draw(knob);
+
+    sf::Text text(generalFont, label, 24);
+
+    sf::FloatRect textBounds = text.getLocalBounds();
+
+    text.setOrigin(text.getLocalBounds().getCenter());
+    float what = static_cast<float>(track.getPosition().x + 0.5 * track.getSize().x);
+    float why = static_cast<float>(track.getPosition().y - 30.0f);
+    text.setPosition({what, why});
+    window.draw(text);
 }
 
 void renderSidebar(sf::RenderWindow& window, const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT){
