@@ -41,7 +41,13 @@ void Slider::update(sf::RenderWindow& window, float& variable, sf::Font generalF
     }
 
     float percentage = (knob.getPosition().x - track.getPosition().x) / track.getSize().x;
-    variable = std::clamp(minValue + (maxValue - minValue) * percentage, minValue, maxValue);
+    
+    float calculatedValue = minValue + (maxValue - minValue) * percentage;
+
+    float actualMin = std::min(minValue, maxValue);
+    float actualMax = std::max(minValue, maxValue);
+    
+    variable = std::clamp(calculatedValue, actualMin, actualMax);
 }
 
 void Slider::update(sf::RenderWindow& window, int& variable, sf::Font generalFont){

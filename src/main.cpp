@@ -117,7 +117,7 @@ int main(){
     
     sf::Clock clock;
 
-    Slider friction({25, 120}, 0.999f, 0.9f);
+    Slider friction({25, 120}, 0.9f, 0.999f);
     Slider size({25, 240}, 10, 1);
     Slider numberOfParticles({25, 360}, 500, 1);
 
