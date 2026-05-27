@@ -1,3 +1,5 @@
 # particle-physics
 
-Creating a little particle physics simulator!
+An interactive 2D particle physics simulation build in C++ using the SFML library!
+
+![Simulation Demo](Particle_Physics_Demo.gif)
