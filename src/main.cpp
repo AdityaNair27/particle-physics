@@ -2,22 +2,30 @@
 #include <vector>
 #include <cmath>
 #include <random>
+#include "UI.h"
 
 namespace Config {
-    const int WINDOW_WIDTH = 800;
+    const int WINDOW_WIDTH = 900;
     const int WINDOW_HEIGHT = 600;
     const int CELL_SIZE = 25;
 }
 
+namespace SimulationVariable {
+    float friction = 0.999f;
+    float size = 5;
+    int numberOfParticles = 500;
+    bool blackHole = false;
+}
+
 class Particle{
 public:
-    float size = 5;
+    float size = SimulationVariable::size;
     sf::Vector2f position, velocity;
 
     Particle(){
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> distX(size, Config::WINDOW_WIDTH - size);
+        std::uniform_real_distribution<float> distX(200 + size, Config::WINDOW_WIDTH - size);
         std::uniform_real_distribution<float> distY(size, Config::WINDOW_HEIGHT - size);
         std::uniform_real_distribution<float> distV(-200.0, 200.0);
 
@@ -57,8 +65,8 @@ void collision(Particle& p1, Particle& p2, float BOUNCE){
 }
 
 void windowCollision(Particle &p, float BOUNCE){
-    if(p.position.x < p.size){
-        p.position.x = p.size;
+    if(p.position.x < 200 + p.size){
+        p.position.x = 200 + p.size;
         p.velocity.x *= -BOUNCE;
 
     } else if (p.position.x > (Config::WINDOW_WIDTH - p.size)) {
@@ -86,9 +94,10 @@ void windowCollision(Particle &p, float BOUNCE){
 
 int main(){
     const float BOUNCE = 0.8f;
-    const float FRICTION = 0.999f;
     
     sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Window");
+
+    sf::Font font("arial.ttf");
 
     Particle cursor;
     cursor.size = 7.5f;
@@ -99,7 +108,7 @@ int main(){
 
     std::vector<Particle> particles;
 
-    for(int i = 0; i < 500; i++){
+    for(int i = 0; i < SimulationVariable::numberOfParticles; i++){
         particles.emplace_back();
     }
 
@@ -108,10 +117,25 @@ int main(){
     
     sf::Clock clock;
 
+    Slider friction({25, 120}, 0.9f, 0.999f);
+    Slider size({25, 240}, 10, 1);
+    Slider numberOfParticles({25, 360}, 500, 1);
+
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
+            }
+        }
+
+        if(SimulationVariable::numberOfParticles < particles.size()){
+            for(int i = 0; i < particles.size() - SimulationVariable::numberOfParticles; i++){
+                particles.pop_back();
+            }
+        } else if (SimulationVariable::numberOfParticles > particles.size()){
+            for(int i = 0; i < SimulationVariable::numberOfParticles - particles.size(); i++){
+                particles.emplace_back();
+            }
         }
 
         window.clear();
@@ -162,14 +186,27 @@ int main(){
         for(Particle& p : particles){
             windowCollision(p, BOUNCE);
 
-            p.velocity *= FRICTION;
+            p.velocity *= SimulationVariable::friction;
             p.position += p.velocity * dt;
+
+            p.size = SimulationVariable::size;
 
             dot.setRadius(p.size);
             dot.setOrigin({p.size, p.size});
             dot.setPosition(p.position);
             window.draw(dot);
         }
+
+        renderSidebar(window, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
+
+        friction.update(window, SimulationVariable::friction, font);
+        friction.draw(window, "Friction", font);
+
+        size.update(window, SimulationVariable::size, font);
+        size.draw(window, "Size", font);
+
+        numberOfParticles.update(window, SimulationVariable::numberOfParticles, font);
+        numberOfParticles.draw(window, "Particles", font);
 
         window.display();
     }
