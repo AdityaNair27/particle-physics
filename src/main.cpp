@@ -14,7 +14,7 @@ namespace SimulationVariable {
     float friction = 0.999f;
     float size = 5;
     int numberOfParticles = 500;
-    bool blackHole = false;
+    bool blackHole = true;
 }
 
 class Particle{
@@ -61,6 +61,27 @@ void collision(Particle& p1, Particle& p2, float BOUNCE){
             p2.velocity.x += dotProduct * nx * BOUNCE;
             p2.velocity.y += dotProduct * ny * BOUNCE;
         }
+    }
+}
+
+void cursorCollision(Particle &p1, Particle &cursor, bool blackHole, float BOUNCE, float dt){
+    if(blackHole == false){
+        collision(p1, cursor, BOUNCE);
+    } else {
+        sf::Vector2f dir = cursor.position - p1.position;
+
+        float distSq = dir.x * dir.x + dir.y * dir.y;
+        distSq += 100;
+        distSq = std::max(distSq, 25.0f);
+
+        float G = 1000000.0f;
+
+        float accel = G / distSq;
+
+        float dist = std::sqrt(distSq);
+        sf::Vector2f direction = dir / dist;
+
+        p1.velocity += direction * accel * dt;
     }
 }
 
@@ -180,7 +201,7 @@ int main(){
         }
 
         for(Particle& p : particles){
-            collision(p, cursor, BOUNCE);
+            cursorCollision(p, cursor, SimulationVariable::blackHole, BOUNCE, dt);
         }
 
         for(Particle& p : particles){
