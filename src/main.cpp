@@ -15,6 +15,7 @@ namespace SimulationVariable {
     float size = 5;
     int numberOfParticles = 500;
     bool blackHole = true;
+    float blackHoleStrength = 1000000.0f;
 }
 
 class Particle{
@@ -74,9 +75,7 @@ void cursorCollision(Particle &p1, Particle &cursor, bool blackHole, float BOUNC
         distSq += 100;
         distSq = std::max(distSq, 25.0f);
 
-        float G = 1000000.0f;
-
-        float accel = G / distSq;
+        float accel = SimulationVariable::blackHoleStrength / distSq;
 
         float dist = std::sqrt(distSq);
         sf::Vector2f direction = dir / dist;
@@ -141,6 +140,7 @@ int main(){
     Slider friction({25, 120}, 0.9f, 0.999f);
     Slider size({25, 240}, 10, 1);
     Slider numberOfParticles({25, 360}, 500, 1);
+    Slider blackHoleStrength({25, 480}, 2000000, 1000000);
 
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
@@ -228,6 +228,9 @@ int main(){
 
         numberOfParticles.update(window, SimulationVariable::numberOfParticles, font);
         numberOfParticles.draw(window, "Particles", font);
+
+        blackHoleStrength.update(window, SimulationVariable::blackHoleStrength, font);
+        blackHoleStrength.draw(window, "BH Strength", font);
 
         window.display();
     }
