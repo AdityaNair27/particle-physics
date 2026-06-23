@@ -137,10 +137,11 @@ int main(){
     
     sf::Clock clock;
 
-    Slider friction({25, 120}, 0.9f, 0.999f);
-    Slider size({25, 240}, 10, 1);
-    Slider numberOfParticles({25, 360}, 500, 1);
-    Slider blackHoleStrength({25, 480}, 2000000, 1000000);
+    Slider friction({25, 100}, 0.9f, 0.999f);
+    Slider size({25, 200}, 10, 1);
+    Slider numberOfParticles({25, 300}, 500, 1);
+    Slider blackHoleStrength({25, 400}, 2000000, 1000000);
+    Button blackHole({25, 500});
 
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
@@ -231,6 +232,9 @@ int main(){
 
         blackHoleStrength.update(window, SimulationVariable::blackHoleStrength, font);
         blackHoleStrength.draw(window, "BH Strength", font);
+
+        blackHole.update(window, SimulationVariable::blackHole, font);
+        blackHole.draw(window, "Black Hole?", font);
 
         window.display();
     }

@@ -73,6 +73,47 @@ void Slider::draw(sf::RenderWindow& window, std::string label, sf::Font generalF
     window.draw(text);
 }
 
+Button::Button(sf::Vector2f position){
+    value = false;
+
+    button.setPosition(position);
+    button.setSize({150, 50});
+    button.setFillColor(sf::Color(255, 255, 255));
+    button.setOutlineThickness(5);
+    button.setOutlineColor(sf::Color(75, 75, 75));
+};
+
+void Button::update(sf::RenderWindow& window, bool& variable, sf::Font generalFont){
+    sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        if(mousePosition.x > button.getPosition().x && mousePosition.x < button.getPosition().x + button.getSize().x){
+            if(mousePosition.y > button.getPosition().y && mousePosition.y < button.getPosition().y + button.getSize().y){
+                isClicking = true;
+                value = !value;
+            }
+        }
+    } else if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        isClicking = false;
+    }
+
+    variable = value;
+};
+
+void Button::draw(sf::RenderWindow& window, std::string label, sf::Font generalFont){
+    window.draw(button);
+
+    sf::Text text(generalFont, label, 24);
+
+    sf::FloatRect textBounds = text.getLocalBounds();
+
+    text.setOrigin(text.getLocalBounds().getCenter());
+    float what = static_cast<float>(button.getPosition().x + 0.5 * button.getSize().x);
+    float why = static_cast<float>(button.getPosition().y - 30.0f);
+    text.setPosition({what, why});
+    window.draw(text);
+};
+
 void renderSidebar(sf::RenderWindow& window, const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT){
     sf::RectangleShape sidebar;
     sf::Vector2f size = {198, 600}, position = {0, 0};
