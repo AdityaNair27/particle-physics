@@ -14,7 +14,7 @@ namespace SimulationVariable {
     float friction = 0.999f;
     float size = 5;
     int numberOfParticles = 500;
-    bool blackHole = true;
+    bool blackHole = false;
     float blackHoleStrength = 1000000.0f;
 }
 
@@ -163,9 +163,30 @@ int main(){
         window.clear();
         float dt = clock.restart().asSeconds();
 
-        cursor.position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-        cursor.velocity = (cursor.position - previousCursorPosition) / dt;
-        previousCursorPosition = cursor.position;
+        sf::Vector2f trueMousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        cursor.velocity = (trueMousePos - previousCursorPosition) / dt;
+
+        if(!SimulationVariable::blackHole){
+            sf::Vector2f mouseDelta = trueMousePos - previousCursorPosition;
+            int substeps = 12;
+
+            for (int step = 0; step < substeps; step++) {
+                float fraction = static_cast<float>(step + 1) / static_cast<float>(substeps);
+                sf::Vector2f subStepPos = previousCursorPosition + (mouseDelta * fraction);
+                cursor.position = subStepPos;
+
+                for(Particle& p : particles){
+                    cursorCollision(p, cursor, SimulationVariable::blackHole, BOUNCE, dt);
+                    
+                    if (!SimulationVariable::blackHole) {
+                        cursor.position = subStepPos;
+                    }
+                }
+            }
+        }
+
+        previousCursorPosition = trueMousePos; 
+        cursor.position = trueMousePos;
 
         for(int x = 0; x < Config::WINDOW_WIDTH/Config::CELL_SIZE; x++){
             for(int y = 0; y < Config::WINDOW_HEIGHT/Config::CELL_SIZE; y++){
@@ -202,10 +223,10 @@ int main(){
         }
 
         for(Particle& p : particles){
-            cursorCollision(p, cursor, SimulationVariable::blackHole, BOUNCE, dt);
-        }
-
-        for(Particle& p : particles){
+            if (SimulationVariable::blackHole) {
+                cursorCollision(p, cursor, SimulationVariable::blackHole, BOUNCE, dt);
+            }
+            
             windowCollision(p, BOUNCE);
 
             p.velocity *= SimulationVariable::friction;
@@ -234,7 +255,7 @@ int main(){
         blackHoleStrength.draw(window, "BH Strength", font);
 
         blackHole.update(window, SimulationVariable::blackHole, font);
-        blackHole.draw(window, "Black Hole?", font);
+        blackHole.draw(window, "Black Hole", font, SimulationVariable::blackHole);
 
         window.display();
     }

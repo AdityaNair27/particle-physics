@@ -27,7 +27,7 @@ private:
 public:
     Button(sf::Vector2f position);
     void update(sf::RenderWindow& window, bool& variable, sf::Font generalFont);
-    void draw(sf::RenderWindow& window, std::string label, sf::Font generalFont);
+    void draw(sf::RenderWindow& window, std::string label, sf::Font generalFont, bool& blackHole);
 };
 
 void renderSidebar(sf::RenderWindow& window, const int& SCREEN_WIDTH, const int& SCREEN_HEIGHT);
