@@ -1,17 +1,25 @@
 # Particle Physics Simulator
 
-![Simulation Demo](Particle_Physics_Demo.gif)
+![Simulation Demo](assets/Particle_Movement_Demo.gif)
 
-An interactive 2D particle physics simulation built in C++ using the SFML library!
+An interactive 2D particle physics simulation built in C++ using the SFML library! This sandbox features real-time particle-on-particle, particle-on-screen, and particle-on-cursor physics with customizable momentum retention.
 
 ## Features
 
-* **Real-Time Elastic Collisions:** Realistic particle-on-particle, particle-on-screen, and particle-on-cursor physics with customizable momentum retention.
-* **Interactive Control Panel:** A built-in UI sidebar that allows you to alter the physics with sliders and buttons.
-    * **Friction:** Adjusts space resistance and energy loss.
-    * **Size:** Dynamically scales the radius of all the particles.
-    * **Particle Count:** Instantly increase or decrease the number of particles at any given moment.
-* **Black Hole Mode:** Toggle the **black hole** feature to turn your cursor into a high-gravity center of mass with an adjustable attraction strength.
+### Interactive Control Panel
+
+A built-in UI sidebar that allows you to alter the physics with sliders and buttons.
+* **Friction:** Adjusts space resistance and energy loss.
+* **Size:** Dynamically scales the radius of all the particles.
+* **Particle Count:** Instantly increases or decreases the number of particles at any given moment.
+
+![Sliders Demo](assets/Sidebar_Demo.gif)
+
+### Black Hole Mode 
+
+Toggle the **black hole** feature to turn your cursor into a high-gravity center of mass with an adjustable attraction strength.
+
+![Black Hole Demo](assets/Black_Hole_Demo.gif)
 
 ## Techniques Used
 
