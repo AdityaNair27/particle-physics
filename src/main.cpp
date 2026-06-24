@@ -10,17 +10,17 @@ namespace Config {
     const int CELL_SIZE = 25;
 }
 
-namespace SimulationVariable {
+namespace SimulationVariables {
     float friction = 0.999f;
     float size = 5;
-    int numberOfParticles = 500;
+    int numberOfParticles = 259;
     bool blackHole = false;
     float blackHoleStrength = 1000000.0f;
 }
 
 class Particle{
 public:
-    float size = SimulationVariable::size;
+    float size = SimulationVariables::size;
     sf::Vector2f position, velocity;
 
     Particle(){
@@ -38,13 +38,13 @@ public:
 };
 
 void collision(Particle& p1, Particle& p2, float BOUNCE){
-    float x = p1.position.x - p2.position.x, y = p1.position.y - p2.position.y;
+    float dx = p1.position.x - p2.position.x, dy = p1.position.y - p2.position.y;
     float minLength = p1.size + p2.size;
-    float actualLength = sqrt((x * x) + (y * y));
+    float actualLength = sqrt((dx * dx) + (dy * dy));
 
     if(actualLength < minLength && actualLength > 0){
         float overlap = (minLength - actualLength) * 0.5f;
-        float nx = x / actualLength, ny = y / actualLength;
+        float nx = dx / actualLength, ny = dy / actualLength;
 
         p1.position.x += nx * overlap;
         p1.position.y += ny * overlap;
@@ -75,12 +75,12 @@ void cursorCollision(Particle &p1, Particle &cursor, bool blackHole, float BOUNC
         distSq += 100;
         distSq = std::max(distSq, 25.0f);
 
-        float accel = SimulationVariable::blackHoleStrength / distSq;
+        float accel = SimulationVariables::blackHoleStrength / distSq;
 
         float dist = std::sqrt(distSq);
-        sf::Vector2f direction = dir / dist;
+        sf::Vector2f normalDir = dir / dist;
 
-        p1.velocity += direction * accel * dt;
+        p1.velocity += normalDir * accel * dt;
     }
 }
 
@@ -115,7 +115,7 @@ void windowCollision(Particle &p, float BOUNCE){
 int main(){
     const float BOUNCE = 0.8f;
     
-    sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Window");
+    sf::RenderWindow window(sf::VideoMode({ Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT }), "Particle Physics Simulator");
 
     sf::Font font("arial.ttf");
 
@@ -128,7 +128,7 @@ int main(){
 
     std::vector<Particle> particles;
 
-    for(int i = 0; i < SimulationVariable::numberOfParticles; i++){
+    for(int i = 0; i < SimulationVariables::numberOfParticles; i++){
         particles.emplace_back();
     }
 
@@ -137,11 +137,11 @@ int main(){
     
     sf::Clock clock;
 
-    Slider friction({25, 100}, 0.9f, 0.999f);
-    Slider size({25, 200}, 10, 1);
-    Slider numberOfParticles({25, 300}, 500, 1);
-    Slider blackHoleStrength({25, 400}, 2000000, 1000000);
-    Button blackHole({25, 500});
+    Slider frictionSlider({25, 100}, 0.9f, 0.999f);
+    Slider sizeSlider({25, 200}, 10, 1);
+    Slider particleSlider({25, 300}, 500, 1);
+    Slider bhStrengthSlider({25, 400}, 2000000, 1000000);
+    Button blackHoleButton({25, 500});
 
     while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
@@ -150,12 +150,12 @@ int main(){
             }
         }
 
-        if(SimulationVariable::numberOfParticles < particles.size()){
-            for(int i = 0; i < particles.size() - SimulationVariable::numberOfParticles; i++){
+        if(SimulationVariables::numberOfParticles < particles.size()){
+            for(int i = 0; i < particles.size() - SimulationVariables::numberOfParticles; i++){
                 particles.pop_back();
             }
-        } else if (SimulationVariable::numberOfParticles > particles.size()){
-            for(int i = 0; i < SimulationVariable::numberOfParticles - particles.size(); i++){
+        } else if (SimulationVariables::numberOfParticles > particles.size()){
+            for(int i = 0; i < SimulationVariables::numberOfParticles - particles.size(); i++){
                 particles.emplace_back();
             }
         }
@@ -166,7 +166,7 @@ int main(){
         sf::Vector2f trueMousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
         cursor.velocity = (trueMousePos - previousCursorPosition) / dt;
 
-        if(!SimulationVariable::blackHole){
+        if(!SimulationVariables::blackHole){
             sf::Vector2f mouseDelta = trueMousePos - previousCursorPosition;
             int substeps = 12;
 
@@ -176,9 +176,9 @@ int main(){
                 cursor.position = subStepPos;
 
                 for(Particle& p : particles){
-                    cursorCollision(p, cursor, SimulationVariable::blackHole, BOUNCE, dt);
+                    cursorCollision(p, cursor, SimulationVariables::blackHole, BOUNCE, dt);
                     
-                    if (!SimulationVariable::blackHole) {
+                    if (!SimulationVariables::blackHole) {
                         cursor.position = subStepPos;
                     }
                 }
@@ -223,16 +223,16 @@ int main(){
         }
 
         for(Particle& p : particles){
-            if (SimulationVariable::blackHole) {
-                cursorCollision(p, cursor, SimulationVariable::blackHole, BOUNCE, dt);
+            if (SimulationVariables::blackHole) {
+                cursorCollision(p, cursor, SimulationVariables::blackHole, BOUNCE, dt);
             }
             
             windowCollision(p, BOUNCE);
 
-            p.velocity *= SimulationVariable::friction;
+            p.velocity *= SimulationVariables::friction;
             p.position += p.velocity * dt;
 
-            p.size = SimulationVariable::size;
+            p.size = SimulationVariables::size;
 
             dot.setRadius(p.size);
             dot.setOrigin({p.size, p.size});
@@ -242,20 +242,20 @@ int main(){
 
         renderSidebar(window, Config::WINDOW_WIDTH, Config::WINDOW_HEIGHT);
 
-        friction.update(window, SimulationVariable::friction, font);
-        friction.draw(window, "Friction", font);
+        frictionSlider.update(window, SimulationVariables::friction, font);
+        frictionSlider.draw(window, "Friction", font);
 
-        size.update(window, SimulationVariable::size, font);
-        size.draw(window, "Size", font);
+        sizeSlider.update(window, SimulationVariables::size, font);
+        sizeSlider.draw(window, "Size", font);
 
-        numberOfParticles.update(window, SimulationVariable::numberOfParticles, font);
-        numberOfParticles.draw(window, "Particles", font);
+        particleSlider.update(window, SimulationVariables::numberOfParticles, font);
+        particleSlider.draw(window, "Particles", font);
 
-        blackHoleStrength.update(window, SimulationVariable::blackHoleStrength, font);
-        blackHoleStrength.draw(window, "BH Strength", font);
+        bhStrengthSlider.update(window, SimulationVariables::blackHoleStrength, font);
+        bhStrengthSlider.draw(window, "BH Strength", font);
 
-        blackHole.update(window, SimulationVariable::blackHole, font);
-        blackHole.draw(window, "Black Hole", font, SimulationVariable::blackHole);
+        blackHoleButton.update(window, SimulationVariables::blackHole, font);
+        blackHoleButton.draw(window, "Black Hole", font, SimulationVariables::blackHole);
 
         window.display();
     }

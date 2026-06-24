@@ -9,7 +9,6 @@ private:
 
     float maxValue;
     float minValue;
-    float currentValue;
     bool isDragging;
 public:
     Slider(sf::Vector2f position, float maxValue, float minValue);
@@ -21,8 +20,7 @@ public:
 class Button {
 private:
     sf::RectangleShape button;
-    
-    bool value;
+
     bool isClicking;
 public:
     Button(sf::Vector2f position);
