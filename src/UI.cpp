@@ -67,15 +67,13 @@ void Slider::draw(sf::RenderWindow& window, std::string label, sf::Font generalF
     sf::FloatRect textBounds = text.getLocalBounds();
 
     text.setOrigin(text.getLocalBounds().getCenter());
-    float what = static_cast<float>(track.getPosition().x + 0.5 * track.getSize().x);
-    float why = static_cast<float>(track.getPosition().y - 30.0f);
-    text.setPosition({what, why});
+    float textX = static_cast<float>(track.getPosition().x + 0.5 * track.getSize().x);
+    float textY = static_cast<float>(track.getPosition().y - 30.0f);
+    text.setPosition({textX, textY});
     window.draw(text);
 }
 
 Button::Button(sf::Vector2f position){
-    value = false;
-
     button.setPosition(position);
     button.setSize({150, 50});
     button.setFillColor(sf::Color(100, 100, 100));
@@ -91,15 +89,13 @@ void Button::update(sf::RenderWindow& window, bool& variable, sf::Font generalFo
             if(mousePosition.y > button.getPosition().y && mousePosition.y < button.getPosition().y + button.getSize().y){
                 if(!isClicking){
                     isClicking = true;
-                    value = !value;
+                    variable = !variable;
                 }
             }
         } 
     } else if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         isClicking = false;
     }
-
-    variable = value;
 };
 
 void Button::draw(sf::RenderWindow& window, std::string label, sf::Font generalFont, bool& blackHole){
@@ -120,16 +116,16 @@ void Button::draw(sf::RenderWindow& window, std::string label, sf::Font generalF
     text.setOrigin(text.getLocalBounds().getCenter());
     onOrOff.setOrigin(onOrOff.getLocalBounds().getCenter());
 
-    float XText = static_cast<float>(button.getPosition().x + 0.5 * button.getSize().x);
-    float YText = static_cast<float>(button.getPosition().y - 30.0f);
+    float textX = static_cast<float>(button.getPosition().x + 0.5 * button.getSize().x);
+    float textY = static_cast<float>(button.getPosition().y - 30.0f);
 
-    float XOnOrOff = static_cast<float>(button.getPosition().x + 0.5 * button.getSize().x);
-    float YOnOrOff = static_cast<float>(button.getPosition().y + 25.0f);
+    float OnOrOffX = static_cast<float>(button.getPosition().x + 0.5 * button.getSize().x);
+    float OnOrOffY = static_cast<float>(button.getPosition().y + 25.0f);
 
-    text.setPosition({XText, YText});
+    text.setPosition({textX, textY});
     window.draw(text);
 
-    onOrOff.setPosition({XOnOrOff, YOnOrOff});
+    onOrOff.setPosition({OnOrOffX, OnOrOffY});
     window.draw(onOrOff);
 };
 
